@@ -1,0 +1,139 @@
+name: ❤️ Daily Heartbeat
+
+on:
+  workflow_dispatch:
+
+  schedule:
+    # 09:00 Tehran (UTC+3:30)
+    - cron: "30 5 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  heartbeat:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Update Heartbeat
+        run: |
+          python <<EOF
+          import json
+          import random
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+
+          tz = ZoneInfo("Asia/Tehran")
+          now = datetime.now(tz)
+
+          with open("heartbeat.json","r",encoding="utf8") as f:
+              hb = json.load(f)
+
+          with open("quotes.json","r",encoding="utf8") as f:
+              quotes = json.load(f)
+
+          hb["heartbeat"] = hb.get("heartbeat",0)+1
+          hb["status"]="alive"
+          hb["timezone"]="Asia/Tehran"
+          hb["last_update"]=now.isoformat(timespec="seconds")
+          hb["quote"]=random.choice(quotes)
+          hb["day_of_week"]=now.strftime("%A")
+
+          milestones={
+              100:"🎉 One hundred days of consistency.",
+              365:"🏆 One year of heartbeat.",
+              500:"🚀 Five hundred check-ins.",
+              1000:"❤️ One thousand heartbeats."
+          }
+
+          hb["milestone"]=milestones.get(hb["heartbeat"],"")
+
+          with open("heartbeat.json","w",encoding="utf8") as f:
+              json.dump(hb,f,indent=4,ensure_ascii=False)
+
+          readme=f"""# ❤️ Daily Heartbeat
+
+          A tiny GitHub Actions automation project.
+
+          ## Latest Heartbeat
+
+          ❤️ **Heartbeat:** {hb['heartbeat']}
+
+          📅 **Last Update:** {hb['last_update']}
+
+          🌍 **Timezone:** {hb['timezone']}
+
+          📆 **Day:** {hb['day_of_week']}
+
+          💬 **Quote**
+
+          > {hb['quote']}
+
+          {'🎉 '+hb['milestone'] if hb['milestone'] else ''}
+
+          ---
+
+          ## Why does this repository exist?
+
+          Sometimes I'm unable to access GitHub because of:
+
+          - Internet outages
+          - Network restrictions
+          - Power interruptions
+          - Travel
+          - Or simply being offline
+
+          Instead of letting my automation stop, GitHub updates this heartbeat every morning.
+
+          This repository is **not** my primary development repository.
+
+          My actual work lives in my other repositories.
+
+          Think of this as a small automated "I'm still here" signal.
+
+          ❤️ Keep Building.
+          """
+
+          with open("README.md","w",encoding="utf8") as f:
+              f.write(readme)
+          EOF
+
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add .
+
+          if git diff --cached --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+
+          messages=(
+            "❤️ Daily Heartbeat"
+            "🌱 Another Day"
+            "☀️ Good Morning"
+            "🚀 Keep Building"
+            "🤖 Heartbeat Updated"
+            "💚 Automation Check"
+            "🌍 Earth Rotated Again"
+            "📈 Tiny Progress"
+            "✨ Stay Consistent"
+            "🫀 Still Alive"
+          )
+
+          MESSAGE=${messages[$RANDOM % ${#messages[@]}]}
+
+          git commit -m "$MESSAGE"
+
+      - name: Push
+        run: git push
