@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -34,11 +36,30 @@ jobs:
           tz = ZoneInfo("Asia/Tehran")
           now = datetime.now(tz)
 
-          with open("heartbeat.json","r",encoding="utf8") as f:
-              hb = json.load(f)
+          # اگر فایل heartbeat.json وجود نداشت، ایجاد کن
+          try:
+              with open("heartbeat.json","r",encoding="utf8") as f:
+                  hb = json.load(f)
+          except FileNotFoundError:
+              hb = {"heartbeat": 0}
 
-          with open("quotes.json","r",encoding="utf8") as f:
-              quotes = json.load(f)
+          # اگر فایل quotes.json وجود نداشت، از لیست پیش‌فرض استفاده کن
+          try:
+              with open("quotes.json","r",encoding="utf8") as f:
+                  quotes = json.load(f)
+          except FileNotFoundError:
+              quotes = [
+                  "The best time to start was yesterday. The next best time is now.",
+                  "Consistency is what transforms average into excellence.",
+                  "Small daily improvements over time lead to stunning results.",
+                  "Success is the sum of small efforts repeated day in and day out.",
+                  "The secret of getting ahead is getting started.",
+                  "It does not matter how slowly you go as long as you do not stop.",
+                  "Success is not final, failure is not fatal: it is the courage to continue that counts.",
+                  "Believe you can and you're halfway there.",
+                  "Act as if what you do makes a difference. It does.",
+                  "What you get by achieving your goals is not as important as what you become."
+              ]
 
           hb["heartbeat"] = hb.get("heartbeat",0)+1
           hb["status"]="alive"
@@ -106,15 +127,16 @@ jobs:
               f.write(readme)
           EOF
 
-      - name: Commit
+      - name: Commit and Push
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # تنظیم با اسم و ایمیل خودتان
+          git config user.name "YALDAKHOSHPEY"
+          git config user.email "missyaldatw@gmail.com"
 
           git add .
 
           if git diff --cached --quiet; then
-            echo "No changes"
+            echo "✅ No changes to commit"
             exit 0
           fi
 
@@ -127,13 +149,14 @@ jobs:
             "💚 Automation Check"
             "🌍 Earth Rotated Again"
             "📈 Tiny Progress"
-            "✨ Stay Consistent"
+            "✨ Stay Consistency"
             "🫀 Still Alive"
           )
 
+          # انتخاب پیام تصادفی
           MESSAGE=${messages[$RANDOM % ${#messages[@]}]}
 
           git commit -m "$MESSAGE"
 
-      - name: Push
-        run: git push
+          # PUSH با مشخص کردن branch
+          git push origin HEAD:main
