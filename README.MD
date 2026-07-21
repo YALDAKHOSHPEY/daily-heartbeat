@@ -1,4 +1,4 @@
-# ❤️ # ❤️ Daily Heartbeat
+ # ❤️ Daily Heartbeat
 
 A tiny GitHub Actions automation project.
 
