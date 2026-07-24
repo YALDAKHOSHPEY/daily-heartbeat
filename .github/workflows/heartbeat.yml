@@ -2,10 +2,9 @@ name: ❤️ Daily Heartbeat
 
 on:
   workflow_dispatch:
-
   schedule:
-    # 09:00 Tehran (UTC+3:30)
-    - cron: "30 5 * * *"
+    # هر ۶ ساعت یکبار اجرا شود (مثل ریپازیتوری دوم)
+    - cron: "0 */6 * * *"
 
 permissions:
   contents: write
@@ -15,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repo
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -36,14 +35,12 @@ jobs:
           tz = ZoneInfo("Asia/Tehran")
           now = datetime.now(tz)
 
-          # اگر فایل heartbeat.json وجود نداشت، ایجاد کن
           try:
               with open("heartbeat.json","r",encoding="utf8") as f:
                   hb = json.load(f)
           except FileNotFoundError:
               hb = {"heartbeat": 0}
 
-          # اگر فایل quotes.json وجود نداشت، از لیست پیش‌فرض استفاده کن
           try:
               with open("quotes.json","r",encoding="utf8") as f:
                   quotes = json.load(f)
@@ -127,36 +124,18 @@ jobs:
               f.write(readme)
           EOF
 
-      - name: Commit and Push
+      - name: Commit & Push (with your identity)
         run: |
-          # تنظیم با اسم و ایمیل خودتان
+          # تنظیم با اسم و ایمیل خودتان (مثل ریپازیتوری دوم)
           git config user.name "YALDAKHOSHPEY"
           git config user.email "missyaldatw@gmail.com"
 
           git add .
 
           if git diff --cached --quiet; then
-            echo "✅ No changes to commit"
+            echo "No changes"
             exit 0
           fi
 
-          messages=(
-            "❤️ Daily Heartbeat"
-            "🌱 Another Day"
-            "☀️ Good Morning"
-            "🚀 Keep Building"
-            "🤖 Heartbeat Updated"
-            "💚 Automation Check"
-            "🌍 Earth Rotated Again"
-            "📈 Tiny Progress"
-            "✨ Stay Consistency"
-            "🫀 Still Alive"
-          )
-
-          # انتخاب پیام تصادفی
-          MESSAGE=${messages[$RANDOM % ${#messages[@]}]}
-
-          git commit -m "$MESSAGE"
-
-          # PUSH با مشخص کردن branch
-          git push origin HEAD:main
+          git commit -m "❤️ Daily Heartbeat"
+          git push
