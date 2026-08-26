@@ -1,3 +1,5 @@
+
+
 # ❤️ Daily Heartbeat
 
 A tiny GitHub Actions automation project.
@@ -30,7 +32,7 @@ Sometimes I'm unable to access GitHub because of:
 - Travel
 - Or simply being offline
 
-Instead of letting my automation stop, GitHub updates this heartbeat every morning.
+Instead of letting my automation stop, GitHub updates this heartbeat every 6 hours.
 
 This repository is **not** my primary development repository.
 
